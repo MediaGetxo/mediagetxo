@@ -1,0 +1,322 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getSettings, getCarrera } from '../lib/site-data';
+import { t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const strings = t[lang];
+const settings = getSettings();
+const carrera = getCarrera();
+
+const nombreEvento = (lang === 'eu' && settings.nombreEventoEu) || settings.nombreEvento;
+const subtitulo = (lang === 'eu' && settings.subtituloEu) || settings.subtitulo;
+const enlaceInscripcion = (lang === 'eu' && settings.enlaceInscripcionEu) || settings.enlaceInscripcion;
+const recorrido = (lang === 'eu' && carrera.recorridoEu) || carrera.recorrido;
+const palabras = nombreEvento.split(' ');
+
+function extraerIdYoutube(url?: string) {
+  if (!url) return undefined;
+  const match = url.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/))([\w-]{11})/);
+  return match ? match[1] : undefined;
+}
+
+const videoId = extraerIdYoutube(settings.videoHeroUrl);
+---
+
+<Layout title={strings.nav.inicio} lang={lang} noFooterGap>
+  <section
+    class:list={['hero-black', { 'has-video': videoId }]}
+    style={!videoId && settings.fotoHero
+      ? `background-image: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.75)), url(${settings.fotoHero});`
+      : undefined}
+  >
+    {videoId && (
+      <div class="hero-video-bg" id="heroVideoBg" aria-hidden="true">
+        <div id="heroYtPlayer" data-video-id={videoId} />
+        <div class="hero-video-overlay" />
+      </div>
+    )}
+    <div class="container">
+      <h1 class="hero-title">
+        {palabras.map((palabra) => (
+          <span>{palabra}</span>
+        ))}
+      </h1>
+      <p class="hero-distances">{subtitulo}</p>
+      <a class="btn" href={enlaceInscripcion} target="_blank" rel="noopener">
+        {strings.home.inscribete}
+      </a>
+    </div>
+  </section>
+
+  <section class="countdown-bar">
+    <div class="container countdown-bar-inner">
+      <p class="countdown-date">{(lang === 'eu' && settings.fechaEu) || settings.fecha}</p>
+      <div class="countdown-clock" id="countdown">
+        <div class="countdown-unit">
+          <strong id="cd-days">–</strong>
+          <span>{strings.home.dias}</span>
+        </div>
+        <div class="countdown-unit">
+          <strong id="cd-hours">–</strong>
+          <span>{strings.home.horas}</span>
+        </div>
+        <div class="countdown-unit">
+          <strong id="cd-minutes">–</strong>
+          <span>{strings.home.minutos}</span>
+        </div>
+        <div class="countdown-unit">
+          <strong id="cd-seconds">–</strong>
+          <span>{strings.home.segundos}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container teaser-grid">
+      <div class="teaser-logo-panel">
+        <img src="/favicon-getxo.png" alt="" />
+      </div>
+      <div class="teaser-copy">
+        <p class="eyebrow">{strings.home.eyebrow}</p>
+        <h2>{strings.home.recorridoTitulo}</h2>
+        <p>{recorrido}</p>
+        {carrera.mapaUrl && (
+          <a class="btn" href={carrera.mapaUrl} target="_blank" rel="noopener">
+            {strings.home.verRecorrido}
+          </a>
+        )}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero-black {
+    position: relative;
+    background-color: var(--color-primary);
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    padding: 5rem 0 3.5rem;
+  }
+
+  .hero-black.has-video {
+    min-height: 88vh;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+
+  .hero-video-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .hero-video-bg.is-playing {
+    opacity: 1;
+  }
+
+  .hero-video-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.75));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-video-bg {
+      display: none;
+    }
+  }
+
+  .hero-black .container {
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-black.has-video .container {
+    width: 100%;
+  }
+
+  .hero-title {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    color: #fff;
+    font-size: clamp(2.75rem, 9vw, 6rem);
+    line-height: 0.92;
+  }
+
+  .hero-distances {
+    margin: 1.5rem 0 2rem;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+    max-width: 38rem;
+  }
+
+  .countdown-bar-inner {
+    flex-wrap: wrap;
+  }
+
+  .teaser-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  .teaser-logo-panel {
+    background: var(--color-primary);
+    border-radius: var(--radius);
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem;
+  }
+
+  .teaser-logo-panel img {
+    max-width: 70%;
+    height: auto;
+  }
+
+  .teaser-copy p {
+    color: var(--color-text-muted);
+    white-space: pre-line;
+  }
+
+  @media (max-width: 780px) {
+    .teaser-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .teaser-logo-panel {
+      aspect-ratio: 16 / 9;
+    }
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  (function () {
+    var container = document.getElementById('heroYtPlayer');
+    var bg = document.getElementById('heroVideoBg');
+    if (!container || !bg) return;
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    var videoId = container.getAttribute('data-video-id');
+    var player;
+    var revealed = false;
+    var fallbackTimer;
+
+    function reveal() {
+      if (revealed) return;
+      revealed = true;
+      bg.classList.add('is-playing');
+    }
+
+    function tryPlay() {
+      if (player && typeof player.playVideo === 'function') {
+        player.mute();
+        player.playVideo();
+      }
+    }
+
+    ['touchstart', 'pointerdown', 'scroll', 'click'].forEach(function (evt) {
+      window.addEventListener(evt, tryPlay, { passive: true, once: true });
+    });
+
+    function onPlayerReady() {
+      tryPlay();
+      fallbackTimer = setTimeout(reveal, 4000);
+    }
+
+    function onPlayerStateChange(event) {
+      if (window.YT && event.data === window.YT.PlayerState.PLAYING) {
+        clearTimeout(fallbackTimer);
+        reveal();
+      }
+    }
+
+    function createPlayer() {
+      player = new window.YT.Player('heroYtPlayer', {
+        videoId: videoId,
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          loop: 1,
+          playlist: videoId,
+          controls: 0,
+          showinfo: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          rel: 0,
+          iv_load_policy: 3,
+          disablekb: 1,
+        },
+        events: {
+          onReady: onPlayerReady,
+          onStateChange: onPlayerStateChange,
+        },
+      });
+    }
+
+    if (window.YT && window.YT.Player) {
+      createPlayer();
+    } else {
+      var previous = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = function () {
+        if (typeof previous === 'function') previous();
+        createPlayer();
+      };
+      var tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+    }
+  })();
+</script>
+
+<script define:vars={{ targetISO: settings.fechaHoraISO }}>
+  function tick() {
+    const els = {
+      d: document.getElementById('cd-days'),
+      h: document.getElementById('cd-hours'),
+      m: document.getElementById('cd-minutes'),
+      s: document.getElementById('cd-seconds'),
+    };
+    if (!targetISO || !els.d) return;
+
+    const diff = new Date(targetISO).getTime() - Date.now();
+    if (diff <= 0) {
+      els.d.textContent = '0';
+      els.h.textContent = '0';
+      els.m.textContent = '0';
+      els.s.textContent = '0';
+      return;
+    }
+
+    const pad = (n) => String(n).padStart(2, '0');
+    const totalSeconds = Math.floor(diff / 1000);
+    els.d.textContent = String(Math.floor(totalSeconds / 86400));
+    els.h.textContent = pad(Math.floor((totalSeconds % 86400) / 3600));
+    els.m.textContent = pad(Math.floor((totalSeconds % 3600) / 60));
+    els.s.textContent = pad(totalSeconds % 60);
+  }
+
+  tick();
+  setInterval(tick, 1000);
+</script>

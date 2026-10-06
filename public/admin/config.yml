@@ -1,0 +1,161 @@
+# Backend: usa Netlify Identity + Git Gateway (recomendado si se aloja en Netlify).
+# Si se despliega en otro sitio, cambia esta sección por un backend "github" con OAuth.
+backend:
+  name: git-gateway
+  branch: main
+
+# Permite editar en local sin autenticarse: `npx decap-server` + `npm run dev`
+local_backend: true
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+locale: "es"
+
+collections:
+  - name: "settings"
+    label: "Configuración general"
+    files:
+      - name: "settings"
+        label: "Datos del evento"
+        file: "src/content/settings/settings.yaml"
+        fields:
+          - { label: "Nombre del evento", name: "nombreEvento", widget: "string" }
+          - { label: "Nombre del evento (euskera)", name: "nombreEventoEu", widget: "string", required: false }
+          - { label: "Fecha", name: "fecha", widget: "string" }
+          - { label: "Fecha (euskera)", name: "fechaEu", widget: "string", required: false }
+          - { label: "Lugar de salida", name: "lugarSalida", widget: "string" }
+          - { label: "Hora de salida", name: "horaSalida", widget: "string" }
+          - { label: "Subtítulo (portada)", name: "subtitulo", widget: "text" }
+          - { label: "Subtítulo (portada, euskera)", name: "subtituloEu", widget: "text", required: false }
+          - { label: "Enlace a inscripciones", name: "enlaceInscripcion", widget: "string" }
+          - { label: "Enlace a inscripciones (euskera)", name: "enlaceInscripcionEu", widget: "string", required: false }
+          - { label: "Fecha y hora de salida (para la cuenta atrás)", name: "fechaHoraISO", widget: "datetime", format: "YYYY-MM-DDTHH:mm:ssZ", picker_utc: false }
+          - { label: "Foto de fondo (portada)", name: "fotoHero", widget: "image", required: false, hint: "Foto para el fondo del hero de Inicio. Si además pones un vídeo abajo, el vídeo tiene prioridad." }
+          - { label: "Vídeo de fondo (URL de YouTube)", name: "videoHeroUrl", widget: "string", required: false, hint: "Pega el enlace del vídeo de YouTube (ej: https://www.youtube.com/watch?v=XXXXXXXXXXX). Se reproduce en bucle, sin sonido, de fondo en Inicio." }
+          - { label: "Color principal", name: "colorPrimario", widget: "color", default: "#0a0a0a" }
+          - { label: "Color de acento", name: "colorAcento", widget: "color", default: "#f05631" }
+
+  - name: "carrera"
+    label: "La carrera"
+    files:
+      - name: "carrera"
+        label: "Información de la carrera"
+        file: "src/content/carrera/carrera.yaml"
+        fields:
+          - { label: "Distancia", name: "distancia", widget: "string" }
+          - { label: "Distancia (euskera)", name: "distanciaEu", widget: "string", required: false }
+          - { label: "Recorrido", name: "recorrido", widget: "text" }
+          - { label: "Recorrido (euskera)", name: "recorridoEu", widget: "text", required: false }
+          - { label: "Altimetría", name: "altimetria", widget: "text" }
+          - { label: "Altimetría (euskera)", name: "altimetriaEu", widget: "text", required: false }
+          - { label: "Horarios", name: "horarios", widget: "text" }
+          - { label: "Horarios (euskera)", name: "horariosEu", widget: "text", required: false }
+          - { label: "Categorías", name: "categorias", widget: "text" }
+          - { label: "Categorías (euskera)", name: "categoriasEu", widget: "text", required: false }
+          - { label: "Enlace al mapa del recorrido", name: "mapaUrl", widget: "string", required: false }
+
+  - name: "dorsales"
+    label: "Recogida de dorsales"
+    files:
+      - name: "dorsales"
+        label: "Recogida de dorsales"
+        file: "src/content/dorsales/dorsales.yaml"
+        fields:
+          - { label: "Lugar", name: "lugar", widget: "string" }
+          - { label: "Lugar (euskera)", name: "lugarEu", widget: "string", required: false }
+          - { label: "Fecha", name: "fecha", widget: "string" }
+          - { label: "Fecha (euskera)", name: "fechaEu", widget: "string", required: false }
+          - { label: "Horario", name: "horario", widget: "string" }
+          - { label: "Horario (euskera)", name: "horarioEu", widget: "string", required: false }
+          - { label: "Aviso", name: "aviso", widget: "text", required: false }
+          - { label: "Aviso (euskera)", name: "avisoEu", widget: "text", required: false }
+          - { label: "Qué llevar", name: "queLlevar", widget: "text" }
+          - { label: "Qué llevar (euskera)", name: "queLlevarEu", widget: "text", required: false }
+
+  - name: "resultados"
+    label: "Resultados"
+    files:
+      - name: "resultados"
+        label: "Ediciones anteriores"
+        file: "src/content/resultados/resultados.yaml"
+        fields:
+          - label: "Ediciones pasadas"
+            name: "edicionesPasadas"
+            widget: "list"
+            fields:
+              - { label: "Año", name: "anio", widget: "string" }
+              - { label: "Enlace a la clasificación", name: "enlace", widget: "string" }
+
+  - name: "contacto"
+    label: "Contacto"
+    files:
+      - name: "contacto"
+        label: "Datos de contacto"
+        file: "src/content/contacto/contacto.yaml"
+        fields:
+          - { label: "Email", name: "email", widget: "string" }
+          - { label: "Teléfono", name: "telefono", widget: "string" }
+          - { label: "Dirección", name: "direccion", widget: "string" }
+          - { label: "Instagram", name: "instagram", widget: "string", required: false }
+          - { label: "Facebook", name: "facebook", widget: "string", required: false }
+
+  - name: "patrocinadores"
+    label: "Patrocinadores"
+    folder: "src/content/patrocinadores"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "nombre"
+    extension: "yaml"
+    fields:
+      - { label: "Nombre", name: "nombre", widget: "string" }
+      - { label: "Logo", name: "logo", widget: "image" }
+      - { label: "Enlace", name: "url", widget: "string", required: false }
+      - label: "Nivel"
+        name: "nivel"
+        widget: "select"
+        options: ["oro", "plata", "bronce", "colaborador"]
+
+  - name: "faq"
+    label: "Preguntas frecuentes"
+    folder: "src/content/faq"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "pregunta"
+    extension: "yaml"
+    fields:
+      - { label: "Pregunta", name: "pregunta", widget: "string" }
+      - { label: "Respuesta", name: "respuesta", widget: "text", hint: "Para un enlace con texto personalizado usa el formato [texto del enlace](https://...)" }
+      - { label: "Pregunta (euskera)", name: "preguntaEu", widget: "string", required: false }
+      - { label: "Respuesta (euskera)", name: "respuestaEu", widget: "text", required: false, hint: "Para un enlace con texto personalizado usa el formato [testua](https://...)" }
+      - { label: "Orden", name: "orden", widget: "number", default: 0 }
+
+  - name: "reglamento"
+    label: "Reglamento"
+    folder: "src/content/reglamento"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "titulo"
+    fields:
+      - { label: "Título", name: "titulo", widget: "string" }
+      - label: "Idioma"
+        name: "lang"
+        widget: "select"
+        options: ["es", "eu"]
+        default: "es"
+      - { label: "Contenido", name: "body", widget: "markdown" }
+
+  - name: "legal"
+    label: "Aviso legal"
+    folder: "src/content/legal"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "titulo"
+    fields:
+      - { label: "Título", name: "titulo", widget: "string" }
+      - label: "Idioma"
+        name: "lang"
+        widget: "select"
+        options: ["es", "eu"]
+        default: "es"
+      - { label: "Contenido", name: "body", widget: "markdown" }
